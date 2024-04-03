@@ -1,0 +1,52 @@
+- name: Configure firewall for Ubuntu
+  hosts: ubuntu
+  become: yes
+  tasks:
+
+    - name: install updates         
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: yes
+
+    - name: Install ufw on Ubuntu
+      ansible.builtin.apt:
+        name: ufw
+        state: present
+
+    - name: Enable SSH port on Ubuntu
+      ansible.builtin.command:
+        cmd: ufw allow ssh
+
+    - name: Enable firewall on Ubuntu
+      ansible.builtin.command:
+        cmd: ufw --force enable
+
+- name: Configure firewall for CentOS
+  hosts: centos
+  become: yes
+  tasks:
+
+    - name: dnf and epel installation
+      ansible.builtin.yum:
+        name: 
+          - epel-release
+          - dnf
+
+    - name: Install firewalld on CentOS
+      ansible.builtin.yum:
+        name: firewalld
+        state: present
+
+    - name: Start firewalld service on CentOS
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Enable SSH port on CentOS
+      ansible.builtin.command:
+        cmd: firewall-cmd --permanent --add-service=ssh
+
+    - name: Reload firewall on CentOS
+      ansible.builtin.command:
+        cmd: firewall-cmd --reload
